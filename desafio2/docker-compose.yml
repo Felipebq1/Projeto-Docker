@@ -1,0 +1,32 @@
+services:
+  escritor:
+    build:
+      context: ./escritor
+      dockerfile: Dockerfile
+    container_name: desafio2_escritor
+    volumes:
+      - dados_db:/data
+    networks:
+      - desafio2_net
+
+  leitor:
+    build:
+      context: ./leitor
+      dockerfile: Dockerfile
+    container_name: desafio2_leitor
+    volumes:
+      - dados_db:/data
+    networks:
+      - desafio2_net
+    depends_on:
+      - escritor
+
+volumes:
+  dados_db:
+    name: desafio2_volume
+
+networks:
+  desafio2_net:
+    name: desafio2_network
+    driver: bridge
+
