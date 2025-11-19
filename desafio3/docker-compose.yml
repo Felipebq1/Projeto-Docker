@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: desafio3_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-desafio3}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - desafio3_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    container_name: desafio3_cache
+    command: redis-server --appendonly yes
+    volumes:
+      - cache_data:/data
+    networks:
+      - desafio3_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: desafio3_web
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-desafio3}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+    ports:
+      - "5000:5000"
+    networks:
+      - desafio3_net
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    name: desafio3_db_data
+  cache_data:
+    name: desafio3_cache_data
+
+networks:
+  desafio3_net:
+    name: desafio3_network
+    driver: bridge
+
