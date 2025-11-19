@@ -1,0 +1,27 @@
+networks:
+  desafio1_net:
+    name: desafio1_network
+    driver: bridge
+
+services:
+  web:
+    build:
+      context: ./servidor
+    container_name: desafio1_web
+    ports:
+      - "8080:8080"
+    networks:
+      - desafio1_net
+
+  client:
+    build:
+      context: ./cliente
+    container_name: desafio1_client
+    depends_on:
+      - web
+    environment:
+      TARGET_URL: http://web:8080/health
+      POLL_INTERVAL: 5
+    networks:
+      - desafio1_net
+
