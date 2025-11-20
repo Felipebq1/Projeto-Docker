@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  servicoa:
+    build: ./servicoA
+    container_name: desafio4_servico_a
+    ports:
+      - "5000:5000"
+
+  servicob:
+    build: ./servicoB
+    container_name: desafio4_servico_b
+    depends_on:
+      - servicoa
+    environment:
+      USERS_API_URL: http://servicoa:5000/usuarios
+      REQUEST_TIMEOUT: 5
+    ports:
+      - "5001:5001"
+
