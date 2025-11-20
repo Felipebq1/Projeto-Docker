@@ -1,0 +1,27 @@
+services:
+  usuarios:
+    build: ./usuarios
+    container_name: desafio5_usuarios
+    expose:
+      - "6000"
+
+  pedidos:
+    build: ./pedidos
+    container_name: desafio5_pedidos
+    expose:
+      - "6001"
+
+  gateway:
+    build: ./gateway
+    container_name: desafio5_gateway
+    depends_on:
+      - usuarios
+      - pedidos
+    environment:
+      USERS_SERVICE_URL: http://usuarios:6000/users
+      ORDERS_SERVICE_URL: http://pedidos:6001/orders
+      REQUEST_TIMEOUT: 5
+    ports:
+      - "8080:8080"
+
+
